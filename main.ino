@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
-#define LED_PIN 13
+#define LED_PIN 12
 #define NUM_LEDS 120
 #define LEDS_PER_STRIP 30
 
@@ -12,7 +12,7 @@ double smoothVolRight = 0;
 unsigned long lastRead = 0;
 unsigned int count = 0;
 
-unsigned int sampleTime = 1000 / 60;
+unsigned int sampleTime = 30;
 
 CRGB leds[NUM_LEDS];
 
@@ -28,6 +28,8 @@ double map(double x, double inMin, double inMax, double outMin, double outMax) {
 
 void setup() {
     FastLED.addLeds<WS2812B, LED_PIN>(leds, NUM_LEDS);
+
+    Serial.begin(9600);
 
 }
 
@@ -47,17 +49,17 @@ void fadeLed(int index, double fade) {
 }
 
 void clearLeds() {
-    for (i = 0; i < LEDS_PER_STRIP; i++) {
+    for (int i = 0; i < NUM_LEDS; i++) {
         leds[i] = CRGB(0, 0, 0);
     }
 }
 
 void setStripPulse(unsigned int stripIndex, unsigned int amount) {
-    minLed = stripIndex * LEDS_PER_STRIP;
+    int minLed = stripIndex * LEDS_PER_STRIP;
 
     for (int i = 0; i < min(LEDS_PER_STRIP / 2, amount); i++) {
-        leds[minLed + LEDS_PER_STRIP / 2 - 1 - i] = CRGB(255, 255, 255);
-        leds[minLed + LEDS_PER_STRIP / 2 + i] = CRGB(255, 255, 255);
+        leds[minLed + LEDS_PER_STRIP / 2 - 1 - i] = CHSV(i * 360/45 + millis() / 50, 255, 255);
+        leds[minLed + LEDS_PER_STRIP / 2 + i] = CHSV(i * 360/45 + millis() / 50, 255, 255);
     }
 }
 
@@ -79,15 +81,16 @@ void loop() {
 //
 //        map(smoothVolRight, 0, volRightAvg * 2, 0, LEDS_PER_STRIP / 2);
 
-        count += 1
-        int value = floor(15 * sin(count / 10) + 15)
+        count += 1;
+        int value = floor(7 * sin(currentTime / 200.0) + 8);
+ 
 
         setStripPulse(0, value);
         setStripPulse(1, value);
         setStripPulse(2, value);
         setStripPulse(3, value);
 
-        delay(5);
+        
         FastLED.show();
     }
 
