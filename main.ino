@@ -3,16 +3,16 @@
 
 #define LED_PIN 13
 #define NUM_LEDS 120
-#define LEDS_PER_STRIP = 30
+#define LEDS_PER_STRIP 30
 
-double volLeftAvg = 0
-double volRightAvg = 0
+double volLeftAvg = 0;
+double volRightAvg = 0;
+double smoothVolLeft = 0;
+double smoothVolRight = 0;
+unsigned long lastRead = 0;
+unsigned int count = 0;
 
-double smoothVolLeft = 0
-double smoothVolRight = 0
-unsigned long lastRead = 0
-
-unsigned int sampleTime = 1000 / 60
+unsigned int sampleTime = 1000 / 60;
 
 CRGB leds[NUM_LEDS];
 
@@ -54,11 +54,10 @@ void clearLeds() {
 
 void setStripPulse(unsigned int stripIndex, unsigned int amount) {
     minLed = stripIndex * LEDS_PER_STRIP;
-    maxLed = (stripIndex + 1) * LEDS_PER_STRIP - 1;
 
     for (int i = 0; i < min(LEDS_PER_STRIP / 2, amount); i++) {
-        leds[LEDS_PER_STRIP / 2 - 1 - i] = CRGB(255, 255, 255);
-        leds[LEDS_PER_STRIP / 2 + i] = CRGB(255, 255, 255);
+        leds[minLed + LEDS_PER_STRIP / 2 - 1 - i] = CRGB(255, 255, 255);
+        leds[minLed + LEDS_PER_STRIP / 2 + i] = CRGB(255, 255, 255);
     }
 }
 
@@ -80,9 +79,13 @@ void loop() {
 //
 //        map(smoothVolRight, 0, volRightAvg * 2, 0, LEDS_PER_STRIP / 2);
 
-        setStripPulse(1, 10);
-        setStripPulse(3, 5);
-        setStripPulse(4, 7);
+        count += 1
+        int value = floor(15 * sin(count / 10) + 15)
+
+        setStripPulse(0, value);
+        setStripPulse(1, value);
+        setStripPulse(2, value);
+        setStripPulse(3, value);
 
         delay(5);
         FastLED.show();
